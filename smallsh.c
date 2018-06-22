@@ -1,9 +1,9 @@
 /*******************************************************************************
-* Programmer: Nikolas Brix													   *							 
-* Date: 3/5/2018															   *							 
-* Description: A shell that has three built-in commands: cd, status, and exit. *
-*			   It supports I/O redirection and both background and foreground  *
-*			   processes.   												   *
+* Programmer: 	Nikolas Brix						       *							 
+* Date: 	3/5/2018						       *							 
+* Description: 	A shell that has three built-in commands: cd, status, and exit.*
+*		It supports I/O redirection and both background and foreground *
+*		processes.   						       *					   *
 *******************************************************************************/
 
 #include <sys/types.h>
@@ -17,17 +17,17 @@
 #include <errno.h>
 
 //Constants
-#define BUFFER_SIZE 2048		//max number of characters read f command line
-#define MAX_NUMBER_ARG 512		//max number of arguments per command
+#define BUFFER_SIZE 2048	//max number of characters read f command line
+#define MAX_NUMBER_ARG 512	//max number of arguments per command
 #define MAX_CHILD_PROCESSES 32	//max number of background processes that can 
-								//be run simultaneously
+				//be run simultaneously
 //Global Variables
-struct sigaction SIGINT_action = {0};			//struct for SIGINT
-struct sigaction SIGTSTP_action = {0};			//struct for SIGTSTP
-int TSTP_Flag = 0;		//specifies if the shell accepts background processes		
+struct sigaction SIGINT_action = {0};		//struct for SIGINT
+struct sigaction SIGTSTP_action = {0};		//struct for SIGTSTP
+int TSTP_Flag = 0;	//specifies if the shell accepts background processes		
 					
 /*******************************************************************************
-*								FUNCTION PROTOTYPES							   *
+*				FUNCTION PROTOTYPES			       *
 *******************************************************************************/
 
 void KillChildren(pid_t *, size_t);
@@ -43,12 +43,12 @@ void DisplayStatus(int);
 void ExecuteCommand(char **argv, pid_t *, size_t *, int *);
 
 /*******************************************************************************
-*        						SIGNAL HANDLERS			     				   *
+*        			SIGNAL HANDLERS			     	       *
 *******************************************************************************/
 
 /*******************************************************************************
 * Description: Catches SIGINT and prints out a message that the process was    *
-*			   terminated.							  					       *
+*	       terminated.						       *
 *******************************************************************************/
 void catchSIGINT(int signo)
 {            
@@ -58,31 +58,31 @@ void catchSIGINT(int signo)
 
 /*******************************************************************************
 * Description: Catches SIGTSTP and switches the mode 'foreground-only' ON/OFF. *
-*			   When entering foreground-only, all new background processes are *
-*			   ignored and run through the foreground.						   *
+*	       When entering foreground-only, all new background processes are *
+*	       ignored and run through the foreground.			       *
 *******************************************************************************/
 void catchSIGTSTP(int signo)
 {
-	if (!TSTP_Flag) {			//flag that determines which mode the shell is in
+	if (!TSTP_Flag) {	//flag that determines which mode the shell is in
 		char* message = "\nEntering foreground-only mode (& is now ignored)\n";
 		write(STDOUT_FILENO, message, 50);
-		TSTP_Flag = 1;			//reset flag
+		TSTP_Flag = 1;		//reset flag
 	} else {
 		char* message = "\nExiting foreground-only mode\n";
 		write(STDOUT_FILENO, message, 30);
-		TSTP_Flag = 0;			//reset flag
+		TSTP_Flag = 0;		//reset flag
 	}
 }
 
 /*******************************************************************************
-*        							FUNCTIONS								   *		     
+*        			FUNCTIONS	   			       *		     
 *******************************************************************************/
 
 /*******************************************************************************
 * Description: Iterates through all background processes and sends a signal to *
-*			   terminate them.										   		   *
-* Input: Array of child processes and its size.								   *								
-* Output: None					     										   *							 
+*	       terminate them.		   		   		       *
+* Input: Array of child processes and its size.				       *								
+* Output: None					     			       *							 
 *******************************************************************************/
 void KillChildren(pid_t *bg_list, size_t size)
 {
@@ -91,9 +91,9 @@ void KillChildren(pid_t *bg_list, size_t size)
 }
 
 /*******************************************************************************
-* Description: Changes the working directory.								   *
-* Input: Desired file path to change directory to of type char *			   *																								 
-* Output: Integer that determines if the function was successful.			   *
+* Description: Changes the working directory.			      	       *
+* Input: Desired file path to change directory to of type char *	       *																								 
+* Output: Integer that determines if the function was successful.	       *
 *******************************************************************************/
 int ChangeDir(char *file_path)
 {
@@ -115,9 +115,9 @@ int ChangeDir(char *file_path)
 }
 
 /*******************************************************************************
-* Description: Expands $$ into the process id.								   *
-* Input: String of data to be parsed of type char *							   *																								 
-* Output: char * of input parameter with $$ expanded.						   *
+* Description: Expands $$ into the process id.			   	       *
+* Input: String of data to be parsed of type char *			       *																								 
+* Output: char * of input parameter with $$ expanded.			       *
 *******************************************************************************/
 char *ExpandPID(char *line)
 {
@@ -128,7 +128,7 @@ char *ExpandPID(char *line)
 	sprintf(pid, "%d", getpid());               //convert pid into string
 	
     while(ptr = strstr(ptr, "$$")) {
-		//copy line into buffer up until first occurrence of $$
+	//copy line into buffer up until first occurrence of $$
         strncpy(buffer, line, ptr - line); 
         buffer[ptr - line] = '\0'; //NULL terminate string to allow concat
         strcat(buffer, pid);                    
@@ -140,9 +140,9 @@ char *ExpandPID(char *line)
 }
 
 /*******************************************************************************
-* Description: Parses the input string into an array of arguments.			   *
-* Input: String of data to be parsed of type char *							   *																								 
-* Output: Array of pointers of type char.									   *
+* Description: Parses the input string into an array of arguments.	       *
+* Input: String of data to be parsed of type char *			       *																								 
+* Output: Array of pointers of type char.				       *
 *******************************************************************************/
 char **ParseInput(char *line)
 {
@@ -151,8 +151,7 @@ char **ParseInput(char *line)
 	char **argv = malloc(MAX_NUMBER_ARG * sizeof(char *)); //argument array
 
 	line = ExpandPID(line);			//expand any instance of $$ in the string
-
-	tok = strtok(line, " ");			//get first argument from input
+	tok = strtok(line, " ");		//get first argument from input
 
 	while(tok && index < MAX_NUMBER_ARG) {	//copy token into arguments array
 		argv[index] = tok;											 				
@@ -165,18 +164,18 @@ char **ParseInput(char *line)
 }
 
 /*******************************************************************************
-* Description: Redirects stdin and stdout to a specified file given by the 	   *
-*			   user. Parses through an array of pointers looking for  		   *
-*			   '<' or '>', then uses the arguments passed through to redirect  *
-*			   to/from the file.											   *
+* Description: Redirects stdin and stdout to a specified file given by the     *
+*	       user. Parses through an array of pointers looking for  	       *
+*	       '<' or '>', then uses the arguments passed through to redirect  *
+*	       to/from the file.					       *
 * Input: Array of pointers containing the command and arguments specified by   *
-*		 the user. 															   *																								 
-* Output: Returns an integer of 0 if successful.							   *
+*	 the user. 							       *																								 
+* Output: Returns an integer of 0 if successful.			       *
 *******************************************************************************/
 int RedirectIO(char **argv, int isBG)
 {
 	int i = 0;
-	int src_file, tgt_file;					//source and target file descriptors
+	int src_file, tgt_file;		//source and target file descriptors
 
 	while (argv[i] != NULL){
 		if (!strcmp(argv[i], ">")) {		//output redirection
@@ -188,21 +187,23 @@ int RedirectIO(char **argv, int isBG)
 			
 			argv[1] = NULL;	//ensures only the command is passed through to child
 
-			if(dup2(tgt_file, STDOUT_FILENO) < 0) {	//redirect
+			//redirect
+			if(dup2(tgt_file, STDOUT_FILENO) < 0) {	
 				perror("target dup2()");
 				exit(1);
 			}
 			fcntl(tgt_file, F_SETFD, FD_CLOEXEC);	//close file on exec()
 		}
 		else if (!strcmp(argv[i], "<")) {	//input redirection
-			if (argv[i + 1] == NULL && isBG)		//open file specified by user
+			if (argv[i + 1] == NULL && isBG)	//open file specified by user
 				src_file = open("/dev/null", O_RDONLY);
 			else
 				src_file = open(argv[i + 1], O_RDONLY);
 
 			argv[1] = NULL;
 
-			if(dup2(src_file, STDIN_FILENO) < 0) {	//redirect
+			//redirect
+			if(dup2(src_file, STDIN_FILENO) < 0) {	
 				perror("source dup2()");
 				exit(1);
 			}
@@ -215,22 +216,22 @@ int RedirectIO(char **argv, int isBG)
 
 /*******************************************************************************
 * Description: Checks if a process should be ran in the background. Determines *
-*			   this by checking if the user entered a '&' at the end of their  *
-*			   command.                                                        *
-* Input:  Array of pointers consisting of arguments passed by user.			   *																								 
+*	       this by checking if the user entered a '&' at the end of their  *
+*	       command.                                                        *
+* Input:  Array of pointers consisting of arguments passed by user.            *																								 
 * Output: Returns an integer of 1 if the process should run in the background, *
-*	      otherwise it returns 0.											   *
+*	  otherwise it returns 0.					       *
 *******************************************************************************/
 int IsBGProcess(char **argv)
 {
 	int i = 0;
-	while (argv[i] != NULL) {			//finds size of argument list
+	while (argv[i] != NULL) {		//finds size of argument list
 		i++;
 	}
 	if (!strcmp(argv[i - 1], "&")) {	//checks for special character  
-		argv[i - 1] = NULL;				//deletes special character
+		argv[i - 1] = NULL;		//deletes special character
 
-		if(TSTP_Flag)					//checks if foreground-only mode is on
+		if(TSTP_Flag)			//checks if foreground-only mode is on
 			return 0;
 		else
 			return 1;
@@ -241,10 +242,10 @@ int IsBGProcess(char **argv)
 }
 
 /*******************************************************************************
-* Description: Removes process from list of active background processes.	   *
-* Input: Process id, list of background processes and its size.				   *																								 
-* Output: Returns an integer of 0 if the process was successfully removed.	   *
-*	      Otherwise it returns -1.											   *
+* Description: Removes process from list of active background processes.       *
+* Input: Process id, list of background processes and its size.		       *																								 
+* Output: Returns an integer of 0 if the process was successfully removed.     *
+*	  Otherwise it returns -1.					       *
 *******************************************************************************/
 int RemovePID(pid_t pid, pid_t *bg_list, size_t *size)
 {
@@ -265,10 +266,10 @@ int RemovePID(pid_t pid, pid_t *bg_list, size_t *size)
 }
 
 /*******************************************************************************
-* Description: Pushes PID of active background process into an array.		   *
-* Input: Process id, list of background processes and its size.				   *																								 
-* Output: Returns an integer of 0 if successful. Otherwise, returns -1 if 	   *
-*	      there are too many background processes running.					   *
+* Description: Pushes PID of active background process into an array.	       *
+* Input: Process id, list of background processes and its size.		       *																								 
+* Output: Returns an integer of 0 if successful. Otherwise, returns -1 if      *
+*	  there are too many background processes running.		       *
 *******************************************************************************/
 int PushPID(pid_t pid, pid_t *bg_list, size_t *size)
 {
@@ -284,33 +285,36 @@ int PushPID(pid_t pid, pid_t *bg_list, size_t *size)
 
 /*******************************************************************************
 * Description: Creates child process to execute non-built-in commands. Also,   *
-*			   stores any active background process into an array. Then checks * 
-*			   and removes process if it finishes.							   *
-* Input: Array of pointers consisting of arguments, array of background		   *
-*		 processes currently running, its size, and status of last foreground  *
-*	     process that completed.											   *																								 
-* Output: None 	  															   *
+*	       stores any active background process into an array. Then checks * 
+*	       and removes process if it finishes.			       *
+* Input: Array of pointers consisting of arguments, array of background	       *
+*	 processes currently running, its size, and status of last foreground  *
+*	 process that completed.					       *																								 
+* Output: None 	  							       *
 *******************************************************************************/
 void Execute(char **argv, pid_t *bg_list, size_t *size, int *last_process)
 {
 	pid_t pid = -5;	
 	pid_t cpid;
-	int status = -5;			//status of process
-	int isBG;					//flag: should process run in background
+	int status = -5;		//status of process
+	int isBG;			//flag: should process run in background
 
 	isBG = IsBGProcess(argv);	//set flag
 	pid = fork();
 	switch (pid) {
+		//ERROR
 		case -1:
 			perror("Error forking");
 			exit(1);
 			break;
-			
-		case 0:				//child process
-            if (!isBG) {	//reset SIGINT to default, if process is not in bg
-            	SIGINT_action.sa_handler = SIG_DFL;
+		
+		//CHILD PROCESS
+		case 0:	
+			//reset SIGINT to default, if process is not in bg
+			if (!isBG) {	
+				SIGINT_action.sa_handler = SIG_DFL;
 				sigaction(SIGINT, &SIGINT_action, NULL);      	
-            }
+			}
 
 			RedirectIO(argv, isBG);		//check for any redirection
 
@@ -319,14 +323,17 @@ void Execute(char **argv, pid_t *bg_list, size_t *size, int *last_process)
 				exit(1);
 			}
 			break;
-			
-		default:			//parent process
-			if (isBG) {		//push pid to array if running in background
+		
+		//PARENT PROCESS
+		default:	
+			//push pid to array if running in background
+			if (isBG) {		
 				PushPID(pid, bg_list, size);		
 				printf("background pid is %d\n", pid);
 				fflush(stdout);
 			} else {
-				do {	//make sure waitpid() returns if interrupted
+				//make sure waitpid() returns if interrupted
+				do {	
 					cpid = waitpid(pid, &status, 0);
 				} while(errno == EINTR && cpid == -1);
 				*last_process = status; 
@@ -345,17 +352,17 @@ void Execute(char **argv, pid_t *bg_list, size_t *size, int *last_process)
 }
 
 /*******************************************************************************
-* Description: Displays the status of the last process that ended.   		   *
-* Input: Int variable consisting of the status of the last process that		   *
-*		 completed.															   *																								 
-* Output: None 	  															   *
+* Description: Displays the status of the last process that ended.   	       *
+* Input: Int variable consisting of the status of the last process that        *
+*	 completed.						   	       *																								 
+* Output: None 	  							       *
 *******************************************************************************/
 void DisplayStatus(int status)
 {
 	pid_t cpid;
 	int exit_status;
 
-	if (WIFEXITED(status)) {	//process exited normally
+	if (WIFEXITED(status)) {		//process exited normally
 		exit_status = WEXITSTATUS(status); 
 		printf("exit value %d\n", exit_status);
 	} else if (WIFSIGNALED(status)) {	//process was exited by a signal
@@ -367,54 +374,54 @@ void DisplayStatus(int status)
 
 /*******************************************************************************
 * Description: Checks and executes the command the user entered. Supports three*
-*			   built-in functions: exit - exits shell and kills all processes; *
-*			   cd - changes working directory; and status - displays how the   *
-*			   process ended.												   *
-* Input: Array of pointers containing the arguments the user specified.		   *																								 
-* Output: None 	  															   *
+*	       built-in functions: exit - exits shell and kills all processes; *
+*	       cd - changes working directory; and status - displays how the   *
+*	       process ended.				       		       *
+* Input: Array of pointers containing the arguments the user specified.	       *																								 
+* Output: None 	  						    	       *
 *******************************************************************************/
 void ExecuteCommand(char **argv, pid_t *bg_list, size_t *size, int *last_process)
 {
 	//check if command is a comment
 	if (argv[0][0] == '#') {
 		return;
-	} else if (!strcmp(argv[0],"exit"))	{	//exits shell
+	} else if (!strcmp(argv[0],"exit")) {	//exits shell
 		KillChildren(bg_list, *size);
 		free(argv);
 		exit(0);
-	} else if (!strcmp(argv[0],"cd")) {		//changes directory
+	} else if (!strcmp(argv[0],"cd")) {	//changes directory
 		if (argv[1] != NULL)
-			ChangeDir(argv[1]);				//pass through only one argument
+			ChangeDir(argv[1]);	//pass through only one argument
 		else
-			ChangeDir(NULL);			//if no argument was given pass in NULL
+			ChangeDir(NULL);	//if no argument was given pass in NULL
 	} else if (!strcmp(argv[0],"status")) {
 		DisplayStatus(*last_process);
-	} else {							//execute non-built-in commands
+	} else {				//execute non-built-in commands
 		Execute(argv, bg_list, size, last_process);
 	}
 }
 
 /*******************************************************************************
-*									MAIN									   *
+*				MAIN					       *
 *******************************************************************************/
 int main()
 {
 	char line[BUFFER_SIZE];		//user input
-    char **argv;
-	int last_process;			//stores the last foreground process that ran
-	size_t size = 0;				//size of bg_list array
-	pid_t bg_list[MAX_CHILD_PROCESSES];		//array that stores all background 
-											//processes currently running
+    	char **argv;
+	int last_process;		//stores the last foreground process that ran
+	size_t size = 0;			//size of bg_list array
+	pid_t bg_list[MAX_CHILD_PROCESSES];	//array that stores all background 
+						//processes currently running
 	//handle SIGTSTP
 	SIGTSTP_action.sa_handler = catchSIGTSTP;           
-    sigfillset(&SIGTSTP_action.sa_mask);
-    SIGTSTP_action.sa_flags = 0; 
+    	sigfillset(&SIGTSTP_action.sa_mask);
+    	SIGTSTP_action.sa_flags = 0; 
 	sigaction(SIGTSTP, &SIGTSTP_action, NULL);
 
 	//handle SIGINT
-    SIGINT_action.sa_handler = catchSIGINT;           
-    sigfillset(&SIGINT_action.sa_mask);
-    SIGINT_action.sa_flags = 0; 
+    	SIGINT_action.sa_handler = catchSIGINT;           
+    	sigfillset(&SIGINT_action.sa_mask);
+    	SIGINT_action.sa_flags = 0; 
 	sigaction(SIGINT, &SIGINT_action, NULL);
 
 	while(1) {	//run shell
@@ -423,18 +430,18 @@ int main()
 		fflush(stdout);
 
 		// get user input
-	    char *user_input = fgets(line, BUFFER_SIZE, stdin);
-	    line[strlen(line)-1] = 0;
+	    	char *user_input = fgets(line, BUFFER_SIZE, stdin);
+	    	line[strlen(line)-1] = 0;
 
-	    //if input is blank, reprompt user
-	    if (strlen(line) == 0)
-	    	continue;
+	    	//if input is blank, reprompt user
+	    	if (strlen(line) == 0)
+	    		continue;
 		
-	    if (user_input != NULL) {	//if a line was read, continue executing
-	    	argv = ParseInput(line);
+	    	if (user_input != NULL) {	//if a line was read, continue executing
+	    		argv = ParseInput(line);
 			ExecuteCommand(argv, bg_list, &size, &last_process);
 			free(argv);
-	    }			
+	    	}			
 	}
 	
 	return 0;
